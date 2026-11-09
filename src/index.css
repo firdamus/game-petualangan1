@@ -1,0 +1,37 @@
+:root {
+  --primary-blue: #1e3a8a;
+  --sky-blue: #7dd3fc;
+  --grass-green: #4ade80;
+  --gold-start: #ffea79;
+  --gold-end: #f59e0b;
+  --gold-border: #b45309;
+  --dark-navy: #0f172a;
+  --font-game: 'Comic Sans MS', 'Fredoka', 'Quicksand', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-game);
+  background: #0f172a;
+  color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}

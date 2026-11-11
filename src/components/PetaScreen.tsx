@@ -49,7 +49,6 @@ export const PetaScreen: React.FC<PetaScreenProps> = ({
   const [showPulauBentukFlow, setShowPulauBentukFlow] = useState(false);
   const [flowLevel, setFlowLevel] = useState<number>(1);
   const [shakingNode, setShakingNode] = useState<string | null>(null);
-  const [characterBubble, setCharacterBubble] = useState<string | null>(null);
 
   const handleLockedClick = (nodeId: string, levelName: string, hint?: string) => {
     playSound(260, 'sawtooth');
@@ -84,8 +83,7 @@ export const PetaScreen: React.FC<PetaScreenProps> = ({
       `⭐ Hebat, kamu sudah Level ${player.level}! Ayo kumpulkan lebih banyak bintang!`,
     ];
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
-    setCharacterBubble(quote);
-    setTimeout(() => setCharacterBubble(null), 3500);
+    showToast(quote);
   };
 
   return (
@@ -97,93 +95,8 @@ export const PetaScreen: React.FC<PetaScreenProps> = ({
         className="pure-game-image"
       />
 
-      {/* Floating Character Speech Bubble */}
-      {characterBubble && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '21.5%',
-            left: '12%',
-            maxWidth: '52%',
-            background: 'rgba(255, 255, 255, 0.96)',
-            color: '#1e3a8a',
-            fontSize: '11px',
-            fontWeight: 800,
-            padding: '6px 10px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-            border: '2px solid #38bdf8',
-            zIndex: 35,
-            animation: 'popUp 0.2s ease-out',
-            pointerEvents: 'none',
-          }}
-        >
-          {characterBubble}
-        </div>
-      )}
-
-      {/* Subtle Interactive Indicators */}
-      {/* Pulsing indicator for active Level 2 */}
-      {nextLevel === 2 && (
-      <div
-        className="active-level-pulse"
-        style={{
-          position: 'absolute',
-          top: '25.6%',
-          left: '26.7%',
-          width: '7.2%',
-          height: '4.1%',
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          zIndex: 8,
-        }}
-      />
-      )}
-
-      {/* Glowing border indicator for completed Level 1 */}
-      {(levelStars[1] ?? 0) >= STARS_TO_UNLOCK && (
-      <div
-        className="completed-level-glow"
-        style={{
-          position: 'absolute',
-          top: '25.6%',
-          left: '12.1%',
-          width: '7.2%',
-          height: '4.1%',
-          borderRadius: '50%',
-          pointerEvents: 'none',
-          zIndex: 8,
-        }}
-      />
-      )}
-
-      {/* Shortcut Pill to Pulau Bentuk Flow */}
-      <button
-        type="button"
-        onClick={() => openLevel(nextLevel)}
-        style={{
-          position: 'absolute',
-          top: '30.5%',
-          left: '8%',
-          background: 'rgba(37, 99, 235, 0.92)',
-          color: '#ffffff',
-          border: '1.5px solid #ffffff',
-          borderRadius: '16px',
-          padding: '3px 8px',
-          fontSize: '10px',
-          fontWeight: 800,
-          boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-          cursor: 'pointer',
-          zIndex: 25,
-          animation: 'pulse 1.8s infinite',
-        }}
-        title="Buka Alur Lengkap Pulau Bentuk"
-      >
-        🎮 Main Level {nextLevel}
-      </button>
-
       {/* ==========================================================
-          HOTSPOTS INTERAKTIF PETA PETUALANGAN
+          HOTSPOTS INTERAKTIF PETA PETUALANGAN (Tepat Sesuai Aset)
           ========================================================== */}
 
       {/* TOP BAR */}
@@ -533,55 +446,53 @@ export const PetaScreen: React.FC<PetaScreenProps> = ({
       />
 
       {/* ==========================================================
-          BILAH NAVIGASI BAWAH (5 TAB)
+          BILAH NAVIGASI BAWAH (5 TAB PRESISI SESUAI ASET)
           ========================================================== */}
-      <div className="bottom-nav-hotspots">
-        <button
-          type="button"
-          className="invisible-nav-hotspot"
-          onClick={() => {
-            playSound(500);
-            onNavigateTab('beranda');
-          }}
-          title="Beranda"
-        />
-        <button
-          type="button"
-          className="invisible-nav-hotspot"
-          onClick={() => {
-            playSound(500);
-            showToast('🗺️ Anda berada di Peta Petualangan');
-          }}
-          title="Peta (Aktif)"
-        />
-        <button
-          type="button"
-          className="invisible-nav-hotspot"
-          onClick={() => {
-            playSound(500);
-            onOpenPrestasi();
-          }}
-          title="Prestasi"
-        />
-        <button
-          type="button"
-          className="invisible-nav-hotspot"
-          onClick={() => {
-            playSound(500);
-            onOpenMateri();
-          }}
-          title="Materi"
-        />
-        <button
-          type="button"
-          className="invisible-nav-hotspot"
-          onClick={() => {
-            playSound(500);
-            onOpenProfile();
-          }}
-          title="Profil"
-        />
-      </div>
+      <button
+        type="button"
+        className="invisible-hotspot bottom-nav-hotspot-home"
+        onClick={() => {
+          playSound(500);
+          onNavigateTab('beranda');
+        }}
+        title="Beranda"
+      />
+      <button
+        type="button"
+        className="invisible-hotspot bottom-nav-hotspot-map"
+        onClick={() => {
+          playSound(500);
+          showToast('🗺️ Anda berada di Peta Petualangan');
+        }}
+        title="Peta (Aktif)"
+      />
+      <button
+        type="button"
+        className="invisible-hotspot bottom-nav-hotspot-achievements"
+        onClick={() => {
+          playSound(500);
+          onOpenPrestasi();
+        }}
+        title="Prestasi"
+      />
+      <button
+        type="button"
+        className="invisible-hotspot bottom-nav-hotspot-materials"
+        onClick={() => {
+          playSound(500);
+          onOpenMateri();
+        }}
+        title="Materi"
+      />
+      <button
+        type="button"
+        className="invisible-hotspot bottom-nav-hotspot-profile"
+        onClick={() => {
+          playSound(500);
+          onOpenProfile();
+        }}
+        title="Profil"
+      />
 
       {/* ==========================================================
           MODAL INTERAKTIF PADA PETA

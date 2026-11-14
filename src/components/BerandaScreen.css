@@ -1,0 +1,100 @@
+/* ==========================================================
+   BERANDA SCREEN - Layout Responsif Presisi Berbasis 941x1672
+   ========================================================== */
+.beranda-screen {
+  --u: min(
+    calc(100cqw / 941),
+    calc((100cqh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1672)
+  );
+  --peta-font: 'Baloo 2', 'Fredoka', 'Nunito', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  background: #4fb4f4;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@supports not (width: 1cqw) {
+  .beranda-screen {
+    --u: min(
+      calc(100vw / 941),
+      calc((100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1672)
+    );
+  }
+}
+
+/* Latar langit di belakang panggung agar menyatu mulus di layar ekstra panjang/lebar */
+.beranda-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #3aa6f2 0%, #5db9f6 30%, #8fd0f8 62%, #c3e6fa 100%);
+}
+
+/* Panggung beranda yang selalu mempertahankan rasio 941:1672 di tengah layar */
+.beranda-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--u) * 941);
+  height: calc(var(--u) * 1672);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.beranda-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* Area tombol interaktif di Beranda */
+.beranda-hit {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.12s ease;
+}
+
+.beranda-hit:active {
+  transform: scale(0.97);
+}
+
+.beranda-hit-play {
+  border-radius: calc(var(--u) * 50);
+}
+
+.beranda-hit-signboard {
+  border-radius: calc(var(--u) * 16);
+}
+
+.beranda-hit-character {
+  border-radius: calc(var(--u) * 36);
+}
+
+/* Animasi pulse lembut untuk tombol Mulai Petualangan agar menarik dimainkan */
+@keyframes berandaPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 calc(var(--u) * 14) rgba(250, 204, 21, 0);
+  }
+}
+
+.beranda-hit-play:hover {
+  animation: berandaPulse 1.8s infinite;
+}

@@ -1,0 +1,10 @@
+Semua PNG di sini berlatar transparan (latar langit lama sudah dihapus).
+Nama file sama seperti folder asli Anda. Potongan duplikat (14-18 ikon tanpa label, 24-27 salinan) digabung.
+
+Perubahan dibanding potongan asli:
+- Pulau, node, karakter, banner, dan ikon dipotong ulang dari gambar referensi dengan area lebih longgar,
+  karena potongan asli terpotong di tepi (puncak gunung Pulau 3, menara kastil Pulau 5, dasar emas node, kaki karakter, tepi kanan kartu misi).
+- 13_bottom_navigation.png digambar ulang transparan (bilah kaca + sorotan Peta + ikon).
+- Folder "tambahan": latar langit bersih 941x1672, bintang aktif/kosong, node tanpa angka, kartu tanpa teks dinamis,
+  dan Pulau 1 tanpa bintang dan node (dipakai agar bisa digambar dinamis).
+- Lihat _pratinjau_transparansi.png untuk memeriksa semuanya sekaligus.

@@ -1,37 +1,38 @@
 import { useState, useCallback, useRef } from 'react';
 import './App.css';
-import gameBg from './assets/game-bg.jpg';
 import type { PlayerData, Mission, TabType } from './types';
 import { ProfileModal } from './components/ProfileModal';
 import { SettingsModal } from './components/SettingsModal';
 import { MateriModal } from './components/MateriModal';
 import { PetaScreen } from './components/PetaScreen';
 import { PrestasiModal } from './components/PrestasiModal';
+import { DailyMissionModal } from './components/DailyMissionModal';
+import { BerandaScreen } from './components/BerandaScreen';
 
-const LEVEL_STARS_KEY = 'pulauBentukLevelStars';
+const INITIAL_PLAYER: PlayerData = {
+  name: 'Rizki',
+  role: 'Siswa',
+  avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4',
+  level: 1,
+  exp: 0,
+  maxExp: 100,
+  stars: 0,
+  gems: 0,
+};
 
 export default function App() {
   // Tab Aktif (Beranda atau Peta Petualangan)
   const [currentTab, setCurrentTab] = useState<TabType>('beranda');
 
-  // Data Pemain
-  const [player, setPlayer] = useState<PlayerData>({
-    name: 'Rizki',
-    role: 'Siswa',
-    avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4',
-    level: 3,
-    exp: 65,
-    maxExp: 100,
-    stars: 120,
-    gems: 45,
-  });
+  // Data Pemain: Selalu mulai dari Level 1 dan 0 bintang saat aplikasi dibuka/direfresh
+  const [player, setPlayer] = useState<PlayerData>(INITIAL_PLAYER);
 
   // Misi Harian
   const [mission, setMission] = useState<Mission>({
     id: 'm1',
     title: 'Misi Hari Ini',
     desc: 'Selesaikan 3 level dengan nilai sempurna',
-    current: 1,
+    current: 0,
     target: 3,
     completed: false,
     rewardStars: 50,
@@ -40,31 +41,26 @@ export default function App() {
 
   // Modal Aktif
   const [activeModal, setActiveModal] = useState<
-    'profile' | 'settings' | 'materi' | 'prestasi' | null
+    'profile' | 'settings' | 'materi' | 'prestasi' | 'mission' | null
   >(null);
 
-  // Bintang terbaik per level Pulau Bentuk (0-3). Level berikutnya terbuka bila bintang >= 2.
-  const [levelStars, setLevelStars] = useState<Record<number, number>>(() => {
-    try {
-      const raw = window.localStorage.getItem(LEVEL_STARS_KEY);
-      return raw ? (JSON.parse(raw) as Record<number, number>) : {};
-    } catch {
-      return {};
-    }
-  });
+  // Bintang level: saat direfresh pemain mengulang ke level 1, bintang 0, level 2+ terkunci
+  const [levelStars, setLevelStars] = useState<Record<number, number>>({});
 
   const handleSaveLevelStars = useCallback((levelNum: number, stars: number) => {
     setLevelStars((prev) => {
       const best = Math.max(prev[levelNum] ?? 0, stars);
       if (best === (prev[levelNum] ?? 0)) return prev;
-      const next = { ...prev, [levelNum]: best };
-      try {
-        window.localStorage.setItem(LEVEL_STARS_KEY, JSON.stringify(next));
-      } catch {
-        // penyimpanan tidak tersedia: progres hanya berlaku selama aplikasi terbuka
-      }
-      return next;
+      return { ...prev, [levelNum]: best };
     });
+
+    // Jika level berhasil diselesaikan (bintang >= 2), naikkan level pemain ke level berikutnya
+    if (stars >= 2) {
+      setPlayer((prev) => {
+        const nextLv = Math.max(prev.level, levelNum + 1);
+        return { ...prev, level: nextLv };
+      });
+    }
   }, []);
 
   // Audio & Notifikasi
@@ -205,140 +201,22 @@ export default function App() {
           />
         ) : (
           /* ==========================================================
-             TAMPILAN BERANDA UTAMA
+             TAMPILAN BERANDA UTAMA (RESPONSIF & DINAMIS SEPERTI PETA)
              ========================================================== */
-          <div className="pure-game-image-wrapper">
-            {/* Gambar Asli Tanpa Timpaan Apapun */}
-            <img
-              src={gameBg}
-              alt="Petualangan Bangun Datar"
-              className="pure-game-image"
-            />
-
-            {/* Area Interaktif Tak Kasat Mata (Seamless & Transparan) */}
-            {/* 1. Profil Siswa */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-profile"
-              onClick={() => {
-                playSound(550);
-                setActiveModal('profile');
-              }}
-              title="Profil Siswa"
-            />
-
-            {/* 2. Tambah Bintang */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-star"
-              onClick={() => {
-                playSound(600);
-                handleAddStars(10);
-              }}
-              title="Tambah Bintang"
-            />
-
-            {/* 3. Tambah Berlian */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-gem"
-              onClick={() => {
-                playSound(880);
-                handleAddGems(5);
-              }}
-              title="Tambah Berlian"
-            />
-
-            {/* 4. Pengaturan */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-settings"
-              onClick={() => {
-                playSound(550);
-                setActiveModal('settings');
-              }}
-              title="Pengaturan"
-            />
-
-            {/* 5. Misi Hari Ini */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-mission"
-              onClick={() => {
-                playSound(720);
-                showToast(`📋 Misi Hari Ini: ${mission.desc} (${mission.current}/${mission.target})`);
-              }}
-              title="Misi Hari Ini"
-            />
-
-            {/* 6. Tombol Mulai Petualangan -> Membuka Peta Petualangan */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-play"
-              onClick={() => {
-                playSound(800, 'triangle');
-                setCurrentTab('peta');
-                showToast('🗺️ Membuka Peta Petualangan...');
-              }}
-              title="Mulai Petualangan"
-            />
-
-            {/* 7. Papan Kayu Kenali Bangun Datar */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-signboard"
-              onClick={() => {
-                playSound(650);
-                setActiveModal('materi');
-              }}
-              title="Kenali Bangun Datar"
-            />
-
-            {/* 8. Karakter Segitiga */}
-            <button
-              type="button"
-              className="invisible-hotspot hotspot-character"
-              onClick={() => {
-                playSound(700);
-                showToast('👋 Halo! Aku Si Segitiga Petualang! Ayo buka Peta untuk berpetualang!');
-              }}
-              title="Si Segitiga"
-            />
-
-            {/* 9. Navigasi Bawah */}
-            <div className="bottom-nav-hotspots">
-              <button
-                type="button"
-                className="invisible-nav-hotspot"
-                onClick={() => handleTabClick('beranda')}
-                title="Beranda"
-              />
-              <button
-                type="button"
-                className="invisible-nav-hotspot"
-                onClick={() => handleTabClick('peta')}
-                title="Peta"
-              />
-              <button
-                type="button"
-                className="invisible-nav-hotspot"
-                onClick={() => handleTabClick('prestasi')}
-                title="Prestasi"
-              />
-              <button
-                type="button"
-                className="invisible-nav-hotspot"
-                onClick={() => handleTabClick('materi')}
-                title="Materi"
-              />
-              <button
-                type="button"
-                className="invisible-nav-hotspot"
-                onClick={() => handleTabClick('profil')}
-                title="Profil"
-              />
-            </div>
-          </div>
+          <BerandaScreen
+            player={player}
+            mission={mission}
+            onNavigateTab={handleTabClick}
+            onOpenProfile={() => setActiveModal('profile')}
+            onOpenSettings={() => setActiveModal('settings')}
+            onOpenMission={() => setActiveModal('mission')}
+            onOpenMateri={() => setActiveModal('materi')}
+            onOpenPrestasi={() => setActiveModal('prestasi')}
+            onAddStars={handleAddStars}
+            onAddGems={handleAddGems}
+            playSound={playSound}
+            showToast={showToast}
+          />
         )}
       </main>
 
@@ -363,18 +241,10 @@ export default function App() {
           onToggleSound={() => setSoundEnabled((v) => !v)}
           onToggleMusic={() => setMusicEnabled((v) => !v)}
           onResetProgress={() => {
-            setPlayer({
-              name: 'Rizki',
-              role: 'Siswa',
-              avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4',
-              level: 3,
-              exp: 65,
-              maxExp: 100,
-              stars: 120,
-              gems: 45,
-            });
-            setMission((m) => ({ ...m, current: 1, completed: false }));
-            showToast('🔄 Data game di-reset!');
+            setPlayer(INITIAL_PLAYER);
+            setLevelStars({});
+            setMission((m) => ({ ...m, current: 0, completed: false }));
+            showToast('🔄 Progres di-reset ke Level 1 & 0 Bintang!');
           }}
           onCheatCurrency={() => {
             setPlayer((p) => ({ ...p, stars: p.stars + 100, gems: p.gems + 50 }));
@@ -394,6 +264,20 @@ export default function App() {
             playSound(950);
             setPlayer((p) => ({ ...p, stars: p.stars + reward }));
             showToast(`🏆 Klaim ⭐ +${reward} Bintang!`);
+          }}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {activeModal === 'mission' && (
+        <DailyMissionModal
+          mission={mission}
+          onClaim={() => {
+            playSound(950);
+            handleAddStars(mission.rewardStars);
+            handleAddGems(mission.rewardGems);
+            setMission((m) => ({ ...m, completed: true }));
+            showToast(`🎉 Misi selesai! Hadiah ⭐ +${mission.rewardStars} & 💎 +${mission.rewardGems} berhasil diklaim!`);
           }}
           onClose={() => setActiveModal(null)}
         />

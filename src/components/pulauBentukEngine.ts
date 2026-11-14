@@ -26,6 +26,8 @@ export const GRAVITY = 900; // unit per detik^2
 export const JUMP_VELOCITY = 270; // tinggi lompatan ~40 unit
 export const HURT_DURATION = 0.55; // detik
 export const SAFE_INSET = 3; // titik respawn digeser sedikit dari tepi pulau
+/** Toleransi mendarat. HARUS >= margin dinding samping (0.5), kalau lebih kecil ada celah tempat karakter tembus ke badan pulau. */
+export const LANDING_TOLERANCE = 0.5;
 
 export const FLAG_REACH = 8;
 
@@ -144,7 +146,7 @@ export function stepPlayer(
 
     if (p.vy <= 0) {
       const under = platformAt(p.x, platforms);
-      if (under && prevY >= under.top - 0.001 && p.y <= under.top) {
+      if (under && prevY >= under.top - LANDING_TOLERANCE && p.y <= under.top) {
         p.y = under.top;
         p.vy = 0;
         p.grounded = true;

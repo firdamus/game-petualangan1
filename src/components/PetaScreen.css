@@ -1,0 +1,209 @@
+/* ==========================================================
+   PETA PETUALANGAN - tampilan berlapis (latar langit + pulau + UI)
+   Semua ukuran memakai --u = 1 piksel desain (gambar referensi 941x1672)
+   ========================================================== */
+.peta-screen {
+  --u: min(
+    calc(100cqw / 941),
+    calc((100cqh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1672)
+  );
+  --peta-font: 'Baloo 2', 'Fredoka', 'Nunito', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  container-type: size;
+  background: #4fb4f4;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@supports not (width: 1cqw) {
+  .peta-screen {
+    --u: min(
+      calc(100vw / 941),
+      calc((100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) / 1672)
+    );
+  }
+}
+
+/* langit penuh layar di belakang panggung (menutup sisa ruang di layar yang lebih tinggi) */
+.peta-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #3aa6f2 0%, #5db9f6 30%, #8fd0f8 62%, #c3e6fa 100%);
+}
+
+.peta-stage,
+.peta-group {
+  position: absolute;
+  left: 50%;
+  width: calc(var(--u) * 941);
+  pointer-events: none;
+}
+.peta-stage { top: 50%; height: calc(var(--u) * 1672); transform: translate(-50%, -50%); }
+.peta-top { top: calc(50% - (var(--u) * 1672 / 2)); height: calc(var(--u) * 270); transform: translateX(-50%); }
+.peta-bottom { bottom: calc(50% - (var(--u) * 1672 / 2)); height: calc(var(--u) * 382); transform: translateX(-50%); }
+
+.peta-bg,
+.peta-img { position: absolute; display: block; pointer-events: none; -webkit-user-drag: none; }
+.peta-bg {
+  inset: 0; width: 100%; height: 100%;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0, #000 3%, #000 97%, transparent 100%);
+}
+.peta-img { max-width: none; }
+
+/* area ketuk tak terlihat (satu-satunya elemen yang menerima sentuhan) */
+.peta-hit {
+  position: absolute;
+  padding: 0; margin: 0;
+  background: transparent; border: 0; outline: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform 0.1s ease;
+}
+.peta-hit:active { transform: scale(0.97); }
+.peta-hit:focus-visible { outline: calc(var(--u) * 4) solid rgba(255, 255, 255, 0.95); outline-offset: calc(var(--u) * -2); border-radius: calc(var(--u) * 18); }
+
+/* node level 1-3 */
+.peta-node { z-index: 3; }
+.peta-node-img {
+  position: absolute; left: 50%; top: 50%; pointer-events: none;
+  width: calc(var(--u) * 130); height: calc(var(--u) * 130); max-width: none;
+  transform: translate(-50%, -50%);
+}
+.peta-digit {
+  position: absolute; transform: translate(-50%, -50%);
+  font-family: var(--peta-font); font-weight: 900; line-height: 1; color: #fff;
+  text-shadow: 0 calc(var(--u) * 2) 0 rgba(10, 35, 80, 0.55); pointer-events: none;
+}
+.peta-stars { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.peta-stars.is-dim { opacity: 0.4; }
+.peta-ring { position: absolute; border-radius: 50%; pointer-events: none; z-index: 3; }
+
+/* garis putus-putus rute peta */
+.peta-paths-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+.peta-path-segment {
+  transition: opacity 0.4s ease;
+}
+.peta-path-segment.is-locked {
+  opacity: 0.35;
+}
+.peta-path-segment.is-completed {
+  opacity: 0.95;
+}
+.peta-path-segment.is-active {
+  opacity: 1;
+}
+.peta-path-segment.is-active .path-stroke {
+  animation: pathDashMarch 1.1s linear infinite;
+}
+@keyframes pathDashMarch {
+  from { stroke-dashoffset: 26; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* tambalan angka Pulau 2 */
+.peta-patch {
+  position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 40%, #2a5479 0%, #234e75 70%, rgba(35, 78, 117, 0) 100%);
+}
+.peta-patch span {
+  font-family: var(--peta-font); font-weight: 900; line-height: 1; color: #fff;
+  text-shadow: 0 calc(var(--u) * 2) 0 rgba(10, 35, 80, 0.55);
+}
+
+/* karakter Si Segitiga (orang keju) */
+.peta-hero-wrapper {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+  transition: left 0.85s cubic-bezier(0.34, 1.25, 0.64, 1), top 0.85s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+.peta-hero-wrapper .peta-hero {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 92%;
+  animation: petaBreathe 3.2s ease-in-out infinite;
+}
+.peta-hero-wrapper.is-walking .peta-hero {
+  animation: petaWalk 0.28s ease-in-out infinite alternate;
+}
+@keyframes petaWalk {
+  0% { transform: translateY(0) rotate(-4deg) scale(1.04); }
+  100% { transform: translateY(calc(var(--u) * -8)) rotate(4deg) scale(0.98); }
+}
+.peta-hero-wrapper .peta-hero-hit {
+  position: absolute;
+  inset: 15% 15% 5% 15%;
+  border-radius: 50%;
+  z-index: 5;
+}
+
+@keyframes petaBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+.peta-bubble {
+  transition: left 0.85s cubic-bezier(0.34, 1.25, 0.64, 1), top 0.85s cubic-bezier(0.34, 1.25, 0.64, 1);
+  position: absolute; z-index: 6; pointer-events: none;
+  background: rgba(255, 255, 255, 0.97); color: #1e3a8a; font-family: var(--peta-font); font-weight: 800; line-height: 1.25;
+  padding: calc(var(--u) * 12) calc(var(--u) * 18);
+  border-radius: calc(var(--u) * 24); border: calc(var(--u) * 4) solid #38bdf8;
+  box-shadow: 0 calc(var(--u) * 8) calc(var(--u) * 24) rgba(0, 0, 0, 0.25);
+  animation: popUp 0.2s ease-out;
+}
+
+/* teks & bar dinamis HUD */
+.peta-txt {
+  position: absolute; transform: translateY(-50%); white-space: nowrap; pointer-events: none;
+  font-family: var(--peta-font); font-weight: 800; line-height: 1; color: #fff;
+  text-shadow: 0 calc(var(--u) * 1.5) 0 rgba(8, 40, 96, 0.4);
+}
+.peta-txt-soft { font-weight: 700; text-shadow: none; }
+.peta-txt.is-center { transform: translate(-50%, -50%); }
+.currency-bump { animation: bumpPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes bumpPop {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.3); color: #fef08a; text-shadow: 0 0 calc(var(--u) * 8) rgba(254, 240, 138, 0.8); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.peta-track { position: absolute; border-radius: 999px; overflow: hidden; pointer-events: none; }
+.peta-xp-track { background: #0f366d; box-shadow: inset 0 calc(var(--u) * 2) calc(var(--u) * 3) rgba(0, 0, 0, 0.35); }
+.peta-mission-track { background: #b0d2eb; }
+.peta-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(180deg, #a6ea8f 0%, #78d672 55%, #55bd5f 100%);
+  box-shadow: inset 0 calc(var(--u) * 1.5) 0 rgba(255, 255, 255, 0.45);
+  transition: width 0.5s ease;
+}
+
+/* bilah navigasi bawah (kaca) */
+.peta-nav {
+  position: absolute; pointer-events: none;
+  border-radius: calc(var(--u) * 40) calc(var(--u) * 40) 0 0;
+  background: rgba(247, 251, 255, 0.93);
+  border-top: calc(var(--u) * 2) solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 calc(var(--u) * -4) calc(var(--u) * 24) rgba(20, 70, 140, 0.16);
+  -webkit-backdrop-filter: blur(calc(var(--u) * 14));
+          backdrop-filter: blur(calc(var(--u) * 14));
+}
+.peta-nav-active {
+  position: absolute; pointer-events: none;
+  border-radius: calc(var(--u) * 28);
+  background: rgba(207, 228, 251, 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peta-hero, .active-level-pulse, .peta-bubble { animation: none; }
+  .peta-fill { transition: none; }
+}

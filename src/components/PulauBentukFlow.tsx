@@ -775,7 +775,7 @@ export const PulauBentukFlow: React.FC<PulauBentukFlowProps> = ({
       startLevel(next);
     } else {
       showToast('🏝️ Pulau Bentuk selesai! Kamu hebat!');
-      onClose();
+      setStage('peta');
     }
   };
 
@@ -848,11 +848,7 @@ export const PulauBentukFlow: React.FC<PulauBentukFlowProps> = ({
               disabled={idx > maxStageIdx && idx > 1}
               onClick={() => {
                 playSound(480);
-                if (t.stage === 'peta') {
-                  onClose();
-                } else {
-                  setStage(t.stage);
-                }
+                setStage(t.stage);
               }}
             >
               {t.label}
@@ -956,7 +952,7 @@ export const PulauBentukFlow: React.FC<PulauBentukFlowProps> = ({
       {stage === 'detail' && (
         <div className="stage-screen-body stage-detail-view">
           <div className="detail-top-bar">
-            <button type="button" className="round-back-btn" onClick={onClose} title="Kembali ke Peta">
+            <button type="button" className="round-back-btn" onClick={() => setStage('peta')}>
               ‹
             </button>
             <div className="top-counters">
@@ -1463,16 +1459,6 @@ export const PulauBentukFlow: React.FC<PulauBentukFlowProps> = ({
                   🔄 Ulangi Soal
                 </button>
               )}
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => {
-                  setShowPauseModal(false);
-                  onClose();
-                }}
-              >
-                🗺️ Kembali ke Peta Petualangan
-              </button>
             </div>
           </div>
         </div>
